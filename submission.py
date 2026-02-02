@@ -16,15 +16,18 @@ data = {
 }
 
 secret = os.environ.get("SIGNING_SECRET", "")
-payload = json.dumps(data, separators=(",", ":"))
+payload = json.dumps(data, separators=(",", ":"), sort_keys=True)
 signature = hmac.new(secret.encode(), payload.encode(), hashlib.sha256).hexdigest()
 
-headers = {"X-Signature-256": f"sha256={signature}"}
+headers = {
+    "X-Signature-256": f"sha256={signature}",
+    "Content-Type": "application/json"
+}
 
 try:
     response = requests.post(
         "https://b12.io/apply/submission",
-        json=data,
+        data=payload,
         headers=headers,
         timeout=30
     )
